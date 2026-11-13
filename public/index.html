@@ -2,57 +2,98 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f2ed">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f2ed" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151515" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="울진군 버스 실시간 도착정보">
   <title>울진 버스</title>
+  <!-- 홈 화면에 앱처럼 추가하기 위한 설정 -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="울진 버스">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header>
-    <h1>울진 버스</h1>
+    <a href="#" class="brand"><h1>울진 버스</h1></a>
     <p class="sub">실시간 도착정보</p>
   </header>
 
+  <!-- 알림 띠 (버스 접근 알림 등) -->
+  <div id="toast" class="toast" hidden></div>
+
   <main>
-    <!-- 검색 영역 -->
-    <section class="search">
-      <form id="searchForm">
-        <input id="q" type="search" placeholder="정류장 이름 (예: 후포, 터미널)" autocomplete="off">
-        <button type="submit">검색</button>
-      </form>
-      <button id="nearbyBtn" class="line">내 주변 정류장</button>
-    </section>
+    <!-- ① 처음 화면 -->
+    <div id="homeView">
+      <section class="search">
+        <form id="searchForm">
+          <input id="q" type="search" placeholder="정류장 이름 (예: 후포, 터미널)" autocomplete="off" enterkeyhint="search">
+          <button type="submit">검색</button>
+        </form>
+        <button id="nearbyBtn" class="line">내 주변 정류장</button>
+      </section>
 
-    <!-- 즐겨찾기 -->
-    <section id="favSection" hidden>
-      <h2>즐겨찾기</h2>
-      <ul id="favList" class="stops"></ul>
-    </section>
+      <section id="resultSection" hidden>
+        <h2 id="resultTitle">검색 결과</h2>
+        <ul id="resultList" class="stops"></ul>
+      </section>
 
-    <!-- 검색 결과 -->
-    <section id="resultSection" hidden>
-      <h2 id="resultTitle">검색 결과</h2>
-      <ul id="resultList" class="stops"></ul>
-    </section>
+      <section id="favSection" hidden>
+        <h2>즐겨찾기</h2>
+        <ul id="favList" class="stops"></ul>
+      </section>
 
-    <!-- 도착정보 -->
-    <section id="arrivalSection" hidden>
-      <div class="arrival-head">
+      <section id="recentSection" hidden>
+        <h2>최근 본 정류장 <button id="clearRecent" class="link small">지우기</button></h2>
+        <ul id="recentList" class="stops"></ul>
+      </section>
+    </div>
+
+    <!-- ② 정류장 화면 -->
+    <div id="stopView" hidden>
+      <button class="back link" data-back>← 뒤로</button>
+      <div class="title-row">
         <div>
-          <h2 id="stopName"></h2>
+          <h2 id="stopName" class="big"></h2>
           <p id="stopMeta" class="sub"></p>
         </div>
         <button id="favBtn" class="star" aria-label="즐겨찾기">☆</button>
       </div>
+
+      <h3>곧 도착</h3>
       <ul id="arrivalList" class="arrivals"></ul>
-      <p class="foot"><span id="updated"></span> · <button id="refreshBtn" class="link">새로고침</button></p>
-    </section>
+      <p class="foot">
+        <span id="updated"></span> · <span id="countdown"></span> ·
+        <button id="refreshBtn" class="link">새로고침</button>
+      </p>
+
+      <h3>이 정류장을 지나는 노선</h3>
+      <ul id="routeList" class="routes"></ul>
+      <p class="hint">노선을 누르면 전체 경로와 지금 버스 위치가 나와요. 🔔를 누르면 3분 전에 알려줘요(이 화면을 켜둔 동안).</p>
+    </div>
+
+    <!-- ③ 노선 화면 -->
+    <div id="routeView" hidden>
+      <button class="back link" data-back>← 뒤로</button>
+      <div class="title-row">
+        <div>
+          <h2 id="routeName" class="big"></h2>
+          <p id="routeMeta" class="sub"></p>
+        </div>
+      </div>
+      <p id="routeTimes" class="times"></p>
+      <ol id="lineList" class="line-stops"></ol>
+      <p class="foot"><span id="routeUpdated"></span> · <button id="routeRefreshBtn" class="link">새로고침</button></p>
+    </div>
 
     <p id="msg" class="msg" hidden></p>
   </main>
 
   <footer>
-    데이터: 국토교통부 TAGO · 시골 노선은 실시간 정보가 없는 경우가 있어요
+    데이터: 국토교통부 TAGO · 시골 노선은 실시간 정보가 없는 경우가 있어요 ·
+    <a href="https://github.com/uljin/bus">소스</a>
   </footer>
 
   <script src="/app.js"></script>
