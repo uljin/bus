@@ -8,7 +8,7 @@
 
 const $ = (id) => document.getElementById(id);
 const REFRESH_SEC = 30;     // 실시간 정보 자동 새로고침 간격
-const ALERT_SEC = 180;      // 🔔 알림: 이 시간(초) 안으로 들어오면 알려줌
+const ALERT_SEC = 180;      // 알림: 이 시간(초) 안으로 들어오면 알려줌
 
 const state = {
   stop: null,          // 지금 보는 정류장 {city, id, name, no}
@@ -16,7 +16,7 @@ const state = {
   arrivals: null,      // 마지막 도착정보
   fetchedAt: 0,        // 도착정보 받은 시각 (카운트다운 계산용)
   route: null,         // 지금 보는 노선 {city, id, node}
-  watches: new Set(),  // 🔔 걸어둔 것들 "정류장ID:노선ID"
+  watches: new Set(),  // 알림 걸어둔 것들 "정류장ID:노선ID"
   alerted: new Set(),  // 이미 알린 것 (같은 버스로 두 번 안 울리게)
 };
 let refreshTimer = null, tickTimer = null;
@@ -113,13 +113,14 @@ const go = (hash) => { location.hash = hash; };
 
 const favs = () => store.get("favs", []);
 const isFav = (s) => favs().some(f => f.id === s.id);
+const favLabel = (s) => (isFav(s) ? "즐겨찾기 빼기" : "즐겨찾기 추가");
 
 function toggleFav() {
   const s = state.stop;
   if (!s) return;
   const list = isFav(s) ? favs().filter(f => f.id !== s.id) : [...favs(), { ...s, heading: state.stopInfo?.heading ?? null }];
   store.set("favs", list);
-  $("favBtn").textContent = isFav(s) ? "★" : "☆";
+  $("favBtn").textContent = favLabel(s);
 }
 
 function addRecent(s) {
@@ -145,7 +146,7 @@ async function search(q) {
     const data = await api(`/api/stops?q=${enc(q)}`);
     $("resultTitle").textContent = `'${q}' 검색 결과`;
     $("resultSection").hidden = false;
-    renderStopList($("resultList"), data.stops, "찾은 정류장이 없어요. 더 짧게 검색해봐요 (예: 후포)");
+    renderStopList($("resultList"), data.stops, "검색 결과 없음. 더 짧게 쳐보셈 (예: 후포)");
     showMsg("");
   } catch (e) { showMsg(e.message); }
 }
@@ -159,7 +160,7 @@ function nearby() {
       const data = await api(`/api/nearby?lat=${lat}&lng=${lng}`);
       $("resultTitle").textContent = "내 주변 정류장";
       $("resultSection").hidden = false;
-      renderStopList($("resultList"), data.stops, "근처에 정류장이 없어요");
+      renderStopList($("resultList"), data.stops, "근처에 정류장 없음");
       showMsg("");
     } catch (e) { showMsg(e.message); }
   }, () => showMsg("위치 권한이 없어서 주변 정류장을 못 찾았어요"), { timeout: 10000, maximumAge: 60000 });
@@ -173,7 +174,7 @@ async function openStop(city, id, name) {
   state.arrivals = null;
   $("stopName").textContent = name;
   $("stopMeta").textContent = "";
-  $("favBtn").textContent = isFav(state.stop) ? "★" : "☆";
+  $("favBtn").textContent = favLabel(state.stop);
   $("arrivalList").innerHTML = `<li class="empty">불러오는 중…</li>`;
   $("routeList").innerHTML = "";
 
@@ -244,7 +245,7 @@ async function refreshArrivals() {
 // 초 → "곧 도착" / "7분" + 색 등급
 function formatTime(sec) {
   if (!isFinite(sec)) return { text: "-", cls: "" };
-  if (sec < 60) return { text: "곧 도착", cls: "soon" };
+  if (sec < 60) return { text: "곧도착!!", cls: "soon" };
   const min = Math.round(sec / 60);
   return { text: `${min}분`, cls: min <= 3 ? "soon" : min <= 10 ? "near" : "" };
 }
@@ -257,7 +258,7 @@ function renderArrivals() {
   const list = $("arrivalList");
 
   if (!data.arrivals.length) {
-    list.innerHTML = `<li class="empty">지금 다가오는 버스 정보가 없어요</li>`;
+    list.innerHTML = `<li class="empty">지금은 오는 버스 정보가 없음 (시골 노선은 원래 잘 안 나옴)</li>`;
   } else {
     list.innerHTML = data.arrivals.map(a => {
       const left = Math.max(0, a.seconds - elapsed);
@@ -274,7 +275,7 @@ function renderArrivals() {
           <span class="detail">${esc(detail)}</span>
         </span>
         <span class="time">${esc(t.text)}</span>
-        <button class="bell ${state.watches.has(key) ? "on" : ""}" data-key="${esc(key)}" aria-label="도착 알림">🔔</button>
+        <button class="bell ${state.watches.has(key) ? "on" : ""}" data-key="${esc(key)}" aria-label="도착 알림">${state.watches.has(key) ? "알림켜짐" : "알림"}</button>
       </li>`;
     }).join("");
     list.querySelectorAll(".link-route").forEach(b => {
@@ -298,7 +299,7 @@ function updateTimes() {
   });
 }
 
-// ── 🔔 도착 알림 (화면을 켜둔 동안만) ──────────────────────
+// ── 도착 알림 (화면을 켜둔 동안만) ──────────────────────
 
 async function toggleWatch(key) {
   if (state.watches.has(key)) {
@@ -306,7 +307,7 @@ async function toggleWatch(key) {
   } else {
     state.watches.add(key);
     state.alerted.delete(key);
-    toast("도착 3분 전에 알려줄게요. 이 화면을 켜둬야 해요.");
+    toast("도착 3분 전에 알려드림. 이 화면 켜놔야 됨!");
   }
   renderArrivals();
   // 권한 창은 화면을 먼저 바꾼 다음에 띄움 (창이 떠 있는 동안 화면이 멈춰 보이지 않게)
@@ -319,7 +320,7 @@ function checkAlert(key, a, left, dir) {
   if (!state.watches.has(key) || state.alerted.has(key) || left > ALERT_SEC) return;
   state.alerted.add(key);
   const text = `${a.route}번${dir ? ` (${dir})` : ""} ${formatTime(left).text}! ${state.stop.name}`;
-  toast(`🔔 ${text}`);
+  toast(`[알림] ${text}`);
   try { navigator.vibrate?.([200, 100, 200]); } catch { /* 무시 */ }
   try {
     if ("Notification" in window && Notification.permission === "granted") new Notification("울진 버스", { body: text, icon: "/icon-192.png" });
