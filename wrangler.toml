@@ -19,6 +19,7 @@ routes = [{ pattern = "uljin-bus.soonjeong.net", custom_domain = true }]
 # 도시코드를 직접 외워 넣는 대신, 이름으로 TAGO 도시 목록에서 찾아 쓰게 했어.
 [vars]
 CITY_NAME = "울진"
+CITY_CODE = "37420"   # TAGO 도시코드 (울진군). 적어두면 목록 조회를 건너뜀
 
 # API 키는 여기 쓰지 마! 대신 터미널에서:
 #   npx wrangler secret put TAGO_KEY
