@@ -10,6 +10,7 @@
 //   GET /api/nearby?lat=..&lng=.. 내 주변 정류장
 //   GET /api/arrivals?city=..&node=..  정류장 도착 예정 버스
 //   GET /api/city                 지금 쓰는 도시코드 확인용 (디버깅)
+//   GET /api/cities               TAGO가 지원하는 도시 전체 목록 (디버깅)
 
 const BASE = "https://apis.data.go.kr/1613000";
 
@@ -41,6 +42,11 @@ export default {
       switch (url.pathname) {
         case "/api/city":
           return json({ cityCode: await getCityCode(env, ctx), cityName: env.CITY_NAME });
+
+        case "/api/cities": {
+          const cities = await getCities(env, ctx);
+          return json({ count: cities.length, cities: cities.map(c => ({ code: String(c.citycode), name: c.cityname })) });
+        }
 
         case "/api/stops": {
           const q = (p.get("q") || "").trim();
@@ -147,11 +153,18 @@ function normalizeItems(data) {
 }
 
 // 도시 이름(예: "울진")으로 도시코드를 찾음. 하루 캐시.
+// numOfRows를 안 주면 기본 10개만 와서, 넉넉히 1000으로 요청함
+function getCities(env, ctx) {
+  return tago(env, ctx, "/BusSttnInfoInqireService/getCtyCodeList", { numOfRows: 1000 }, TTL.city);
+}
+
 async function getCityCode(env, ctx) {
-  const cities = await tago(env, ctx, "/BusSttnInfoInqireService/getCtyCodeList", {}, TTL.city);
+  // wrangler.toml에 CITY_CODE를 직접 적어두면 그걸 우선 씀
+  if (env.CITY_CODE) return String(env.CITY_CODE);
+  const cities = await getCities(env, ctx);
   const name = env.CITY_NAME || "울진";
   const found = cities.find(c => String(c.cityname).includes(name));
-  if (!found) throw new HttpError(500, `TAGO 도시 목록에 '${name}'이 없어`);
+  if (!found) throw new HttpError(500, `TAGO 도시 목록(${cities.length}곳)에 '${name}'이 없어. /api/cities 에서 목록 확인`);
   return String(found.citycode);
 }
 
