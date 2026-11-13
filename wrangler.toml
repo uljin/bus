@@ -1,0 +1,21 @@
+# Cloudflare Worker 설정 파일
+# 이 파일 하나로 "어떤 코드를, 어떤 이름으로, 어떤 설정으로" 배포할지 정해.
+
+name = "uljin-bus"                 # Worker 이름 → https://uljin-bus.<계정>.workers.dev
+main = "src/index.js"              # 서버 코드(API 프록시)
+compatibility_date = "2026-11-01"  # 이 날짜 기준의 Workers 동작 방식을 쓰겠다는 뜻
+
+# public/ 폴더의 파일(index.html, app.js, style.css)을 그대로 서빙해.
+# 파일이 있으면 파일을 돌려주고, 없는 경로(/api/...)만 src/index.js로 넘어가.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# 비밀이 아닌 설정값. 코드에서 env.CITY_NAME 으로 읽어.
+# 도시코드를 직접 외워 넣는 대신, 이름으로 TAGO 도시 목록에서 찾아 쓰게 했어.
+[vars]
+CITY_NAME = "울진"
+
+# API 키는 여기 쓰지 마! 대신 터미널에서:
+#   npx wrangler secret put TAGO_KEY
+# 로 등록하면 env.TAGO_KEY 로 읽을 수 있어. (깃허브에 안 올라감)

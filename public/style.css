@@ -1,0 +1,66 @@
+/* 선과 면 위주의 단순한 스타일. 색은 도착 임박도에만 씀. */
+:root {
+  --bg: #f4f2ed;
+  --fg: #1a1a1a;
+  --muted: #777;
+  --line: #1a1a1a;
+  --soon: #d93a1f;   /* 3분 이내 */
+  --near: #d98a00;   /* 10분 이내 */
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151515; --fg: #eee; --muted: #999; --line: #eee; }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0 auto; max-width: 560px; padding: 0 16px 40px;
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  line-height: 1.5;
+}
+header { padding: 28px 0 16px; border-bottom: 2px solid var(--line); }
+h1 { margin: 0; font-size: 28px; letter-spacing: -0.5px; }
+h2 { font-size: 15px; margin: 24px 0 8px; }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+/* 검색 */
+.search { padding: 16px 0; border-bottom: 1px solid var(--line); }
+form { display: flex; gap: 8px; margin-bottom: 8px; }
+input {
+  flex: 1; padding: 10px 12px; font-size: 16px;
+  border: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--fg);
+}
+button {
+  padding: 10px 14px; font-size: 15px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--fg); color: var(--bg); border-radius: 0;
+}
+button.line { width: 100%; background: transparent; color: var(--fg); }
+button.link { border: 0; padding: 0; background: none; color: inherit; text-decoration: underline; font-size: inherit; }
+button.star { background: transparent; color: var(--fg); font-size: 22px; padding: 4px 10px; border: 0; }
+
+/* 정류장 목록 */
+ul { list-style: none; margin: 0; padding: 0; }
+.stops li {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 2px; border-bottom: 1px solid color-mix(in srgb, var(--line) 25%, transparent);
+  cursor: pointer;
+}
+.stops li:active { opacity: .5; }
+.stops .meta { color: var(--muted); font-size: 13px; }
+
+/* 도착정보 */
+.arrival-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--line); padding-bottom: 8px; margin-top: 24px; }
+.arrival-head h2 { margin: 0; font-size: 20px; }
+.arrivals li {
+  display: grid; grid-template-columns: 4.5em 1fr auto; align-items: center; gap: 8px;
+  padding: 14px 2px; border-bottom: 1px solid color-mix(in srgb, var(--line) 25%, transparent);
+}
+.arrivals .route { font-weight: 700; font-size: 18px; }
+.arrivals .detail { color: var(--muted); font-size: 13px; }
+.arrivals .time { font-size: 18px; font-weight: 700; text-align: right; }
+.arrivals .soon .time { color: var(--soon); }
+.arrivals .near .time { color: var(--near); }
+
+.foot { color: var(--muted); font-size: 13px; }
+.msg { padding: 16px 0; color: var(--muted); }
+footer { margin-top: 40px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; }

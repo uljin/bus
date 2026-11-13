@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2ed">
+  <title>울진 버스</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>울진 버스</h1>
+    <p class="sub">실시간 도착정보</p>
+  </header>
+
+  <main>
+    <!-- 검색 영역 -->
+    <section class="search">
+      <form id="searchForm">
+        <input id="q" type="search" placeholder="정류장 이름 (예: 후포, 터미널)" autocomplete="off">
+        <button type="submit">검색</button>
+      </form>
+      <button id="nearbyBtn" class="line">내 주변 정류장</button>
+    </section>
+
+    <!-- 즐겨찾기 -->
+    <section id="favSection" hidden>
+      <h2>즐겨찾기</h2>
+      <ul id="favList" class="stops"></ul>
+    </section>
+
+    <!-- 검색 결과 -->
+    <section id="resultSection" hidden>
+      <h2 id="resultTitle">검색 결과</h2>
+      <ul id="resultList" class="stops"></ul>
+    </section>
+
+    <!-- 도착정보 -->
+    <section id="arrivalSection" hidden>
+      <div class="arrival-head">
+        <div>
+          <h2 id="stopName"></h2>
+          <p id="stopMeta" class="sub"></p>
+        </div>
+        <button id="favBtn" class="star" aria-label="즐겨찾기">☆</button>
+      </div>
+      <ul id="arrivalList" class="arrivals"></ul>
+      <p class="foot"><span id="updated"></span> · <button id="refreshBtn" class="link">새로고침</button></p>
+    </section>
+
+    <p id="msg" class="msg" hidden></p>
+  </main>
+
+  <footer>
+    데이터: 국토교통부 TAGO · 시골 노선은 실시간 정보가 없는 경우가 있어요
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
