@@ -15,6 +15,9 @@ binding = "ASSETS"
 # 나중에 다시 배포해도 설정이 코드에 남아 있어서 안 꼬여.
 routes = [{ pattern = "uljin-bus.soonjeong.net", custom_domain = true }]
 
+# 대시보드에서 넣은 변수를 배포 때 지우지 않고 남겨둠 (안전장치)
+keep_vars = true
+
 # 비밀이 아닌 설정값. 코드에서 env.CITY_NAME 으로 읽어.
 # 도시코드를 직접 외워 넣는 대신, 이름으로 TAGO 도시 목록에서 찾아 쓰게 했어.
 [vars]
