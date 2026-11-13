@@ -64,6 +64,7 @@ npx wrangler dev                        # http://localhost:8787
 |---|---|
 | `SERVICE_KEY_IS_NOT_REGISTERED_ERROR` | Encoding 키를 넣었거나, 승인 직후(1~2시간 대기). Decoding 키로 다시 `secret put` |
 | `LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR` | 하루 호출 한도 초과. 개발계정은 하루 1,000회 정도라 운영계정 신청을 고려 |
+| `TAGO_KEY가 등록 안 됐어` (전엔 됐는데 갑자기) | 키를 Text 변수로 넣으면 배포 때마다 지워져. 대시보드에서 **Secret** 종류로 다시 등록 |
 | `TAGO 도시 목록에 '울진'이 없어` | `wrangler.toml` 의 `CITY_NAME` 확인 |
 | 도착정보가 늘 비어 있음 | 해당 노선에 BIS 단말기가 없으면 TAGO에도 실시간 정보가 안 들어와 |
 
