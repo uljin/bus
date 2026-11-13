@@ -74,7 +74,7 @@
 
       <h3>이 정류장 지나가는 노선</h3>
       <ul id="routeList" class="routes"></ul>
-      <p class="hint">※ 노선 번호 누르면 버스가 지금 어디쯤인지 나옴<br>※ [알림] 누르면 도착 3분 전에 알려줌 (이 화면 켜놔야 됨)</p>
+      <p class="hint">※ 노선 번호 누르면 버스가 지금 어디쯤인지 나옵니다.<br>※ [알림] 누르면 도착 3분 전에 알려드립니다. (이 화면 켜놔야 됨)</p>
     </div>
 
     <!-- ③ 노선 화면 -->
@@ -97,11 +97,11 @@
       <h3>울진 버스 노선도</h3>
       <div class="map-tools">
         <button id="zoomIn">크게</button> <button id="zoomOut">작게</button>
-        <span class="small-note">정류장 누르면 그 마을 가는 버스 나옴</span>
+        <span class="small-note">정류장 누르면 그 마을 가는 버스 나옵니다.</span>
       </div>
       <div id="mapBox" class="map-box"></div>
       <div id="mapPanel" class="map-panel" hidden></div>
-      <p class="hint">※ (주)울진여객 노선도(군청 게시)를 보고 다시 그린 것. 선 모양은 대략적임.<br>
+      <p class="hint">※ (주)울진여객 노선도(군청 게시)를 보고 다시 그린 것. 선 모양은 대략적.<br>
         ※ 원본: <a href="https://www.uljin.go.kr/upload_data/board_data/BBS_0000130/176605719610148.pdf">노선도 PDF</a></p>
     </div>
 
@@ -110,7 +110,7 @@
       <button class="back link" data-back>← 뒤로</button>
       <h3>기점별 시간표 (2025.10.1 시행)</h3>
       <form id="ttSearch" class="tt-search">
-        <input id="ttQ" type="search" placeholder="어디 가? 마을 이름 (예: 두천, 덕구)" autocomplete="off" enterkeyhint="search">
+        <input id="ttQ" type="search" placeholder="마을 이름 (예: 두천, 덕구)" autocomplete="off" enterkeyhint="search">
         <button type="submit">찾기</button>
       </form>
       <div id="ttTabs" class="tt-tabs"></div>
@@ -124,8 +124,8 @@
   </main>
 
   <footer>
-    ※ 자료: 국토교통부 TAGO<br>※ 시골 노선은 실시간 정보가 안 나올 때가 많음. 양해 바람.<br>
-    만든 사람: 울진 사는 사람 | <a href="https://github.com/uljin/bus">소스코드</a>
+    ※ 자료: 국토교통부 TAGO<br>
+    만든 사람: 울진 사는 사람
   </footer>
 
   <script src="/app.js"></script>
