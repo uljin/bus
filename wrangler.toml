@@ -11,6 +11,10 @@ compatibility_date = "2026-11-01"  # 이 날짜 기준의 Workers 동작 방식�
 directory = "./public"
 binding = "ASSETS"
 
+# 커스텀 도메인. 대시보드에서 연결한 것과 같게 적어두면
+# 나중에 다시 배포해도 설정이 코드에 남아 있어서 안 꼬여.
+routes = [{ pattern = "uljin-bus.soonjeong.net", custom_domain = true }]
+
 # 비밀이 아닌 설정값. 코드에서 env.CITY_NAME 으로 읽어.
 # 도시코드를 직접 외워 넣는 대신, 이름으로 TAGO 도시 목록에서 찾아 쓰게 했어.
 [vars]

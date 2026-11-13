@@ -47,7 +47,7 @@ Cloudflare Worker 하나가 화면(정적 파일)과 API 프록시를 같이 맡
    ```sh
    npx wrangler deploy
    ```
-   끝나면 `https://uljin-bus.<계정>.workers.dev` 주소가 나와.
+   끝나면 `https://uljin-bus.soonjeong.net` 으로 열려.
 
 6. **확인** — 브라우저에서 `/api/city` 를 열어봐. `{"cityCode":"...","cityName":"울진"}` 이 나오면 성공.
 
@@ -67,13 +67,10 @@ npx wrangler dev                        # http://localhost:8787
 | `TAGO 도시 목록에 '울진'이 없어` | `wrangler.toml` 의 `CITY_NAME` 확인 |
 | 도착정보가 늘 비어 있음 | 해당 노선에 BIS 단말기가 없으면 TAGO에도 실시간 정보가 안 들어와 |
 
-## 커스텀 도메인 (선택)
+## 주소
 
-`bus.soonjeong.net` 처럼 쓰고 싶으면 `wrangler.toml` 에 추가:
-
-```toml
-routes = [{ pattern = "bus.soonjeong.net", custom_domain = true }]
-```
+https://uljin-bus.soonjeong.net — `wrangler.toml` 의 `routes` 에 적혀 있어.
+GitHub에 push하면 Cloudflare가 자동으로 다시 배포해 (GitHub Pages는 안 씀).
 
 커스텀 도메인에서는 Cloudflare 엣지 캐시(Cache API)도 실제로 동작해서 호출이 더 줄어.
 
