@@ -21,6 +21,25 @@ Cloudflare Worker 하나가 화면(정적 파일)과 API 프록시를 같이 맡
 - 홈 화면에 추가하면 앱처럼 열림, 다크모드 자동
 - 주소로 화면 공유: `#s/도시/정류장ID/이름`, `#r/도시/노선ID/정류장ID`
 
+- **노선도** (`#map`) — 군청의 (주)울진여객 노선도를 다시 그린 것. 정류장 누르면 그 마을 가는 버스(시간표 기준)
+- **기점별 시간표** (`#tt`) — 2025.10.1 시행 농어촌버스 시간표. 마을 이름으로 찾기, 다음 차 노란 줄 표시
+
+### 노선도·시간표 데이터 만드는 법
+
+군청 PDF가 바뀌면 이렇게 다시 만들어 (Python + pdfplumber 필요):
+
+```sh
+# 시간표: PDF 글자 위치를 읽어서 기점 > 방면 > (번호, 시각, 경유) 로 정리
+python3 tools/parse_timetable.py 시간표.pdf public/data/timetable.json
+
+# 노선도: 정류장 좌표(tools/data/map_stops.json) + 손으로 적은 연결선 목록
+python3 tools/build_map.py tools/data/map_stops.json public/data/map.json
+```
+
+- 시간표는 자동 추출이라 위아래로 붙은 칸이 섞이는 경우가 있어. 틀린 건 `public/data/timetable.json` 을 직접 고치면 돼.
+- 노선도 연결선은 `tools/build_map.py` 안의 `EDGES`, `SPURS` 목록을 고치면 돼.
+- 정류장 좌표는 노선도 PDF의 점 색깔을 찾아서 뽑았어 (72dpi 기준 픽셀).
+
 ### 방면은 이렇게 계산해
 
 TAGO엔 "방면" 정보가 없어서 Worker가 직접 계산해.
@@ -48,6 +67,8 @@ TAGO엔 "방면" 정보가 없어서 Worker가 직접 계산해.
 | `public/index.html` | 화면 뼈대 |
 | `public/app.js` | 화면 3개(처음/정류장/노선), 즐겨찾기, 알림, 자동 새로고침 |
 | `public/manifest.webmanifest`, `icon*` | 홈 화면 앱 설정과 아이콘 |
+| `public/data/map.json`, `timetable.json` | 노선도·시간표 데이터 (군청 PDF에서 만든 것) |
+| `tools/` | 위 데이터를 만드는 스크립트 |
 | `public/style.css` | 스타일 (다크모드 자동) |
 
 ## 처음 배포하기 (맥 터미널)

@@ -156,3 +156,52 @@ footer {
   margin-top: 24px; padding: 8px; font-size: 11px; color: #333; text-align: center;
   background: #e0e0e0; border-top: 3px double #999;
 }
+
+/* 처음 화면 큰 버튼 두 개 */
+.menu2 { display: flex; gap: 4px; margin-top: 6px; }
+.bigbtn {
+  flex: 1; display: block; text-align: center; padding: 10px 4px;
+  background: #009933; color: #fff !important; font-weight: bold; text-decoration: none;
+  border: 3px outset #66cc88;
+}
+.bigbtn:active { border-style: inset; }
+
+/* 노선도 */
+.map-tools { margin: 6px 0; font-size: 12px; }
+.map-tools button { padding: 3px 10px; }
+.small-note { color: #cc0000; }
+.map-box { overflow: auto; border: 3px ridge #999; background: #fffde0; max-height: 75vh; -webkit-overflow-scrolling: touch; }
+.map-box svg { display: block; width: 100%; height: auto; }
+.m-stop { cursor: pointer; }
+.m-name { font: bold 34px "굴림", Gulim, sans-serif; fill: #000; paint-order: stroke; stroke: #fffde0; stroke-width: 8px; }
+.m-hub { font: bold 60px "굴림", Gulim, sans-serif; fill: #0033cc; paint-order: stroke; stroke: #fff; stroke-width: 10px; }
+.m-edge-label { font: bold 34px "굴림", Gulim, sans-serif; fill: #1a237e; }
+.map-panel {
+  position: sticky; bottom: 0; z-index: 5; margin-top: 6px;
+  background: #fff; border: 3px solid #0033cc; max-height: 55vh; overflow: auto;
+}
+.panel-head { background: #0033cc; color: #ffff00; padding: 6px 8px; font-size: 13px; position: sticky; top: 0; }
+.panel-head b { font-size: 16px; }
+.panel-close { float: right; font-size: 11px; padding: 2px 6px; }
+.panel-btns { margin: 6px 8px; }
+.live-btn { width: 100%; background: #ff6600; color: #fff; font-weight: bold; border-color: #ffaa66; }
+
+/* 시간표 */
+.tt-search { margin: 6px 0; }
+.tt-tabs { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
+.tab { font-size: 12px; padding: 4px 6px; }
+.tab.on { background: #0033cc; color: #ffff00; border-color: #6688ff; font-weight: bold; }
+.tt-block { margin: 10px 0; }
+.tt-head { background: #ffcc00; color: #000; font-weight: bold; padding: 4px 8px; border: 1px solid #996600; font-size: 13px; }
+.tt-note { color: #cc0000; font-size: 12px; padding: 2px 8px; background: #fff; border: 1px solid #996600; border-top: 0; }
+table.tt { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+table.tt th { background: #e0e0e0; border: 1px solid #999; padding: 3px; font-size: 12px; }
+table.tt td { border: 1px solid #ccc; padding: 4px; vertical-align: top; word-break: keep-all; }
+table.tt td:first-child { width: 3.2em; text-align: center; color: #666; font-size: 12px; }
+table.tt td.t { width: 4.2em; text-align: center; font-weight: bold; color: #0033cc; }
+table.tt tr.past td { color: #aaa; }
+table.tt tr.past td.t { color: #aaa; }
+table.tt tr.next td { background: #ffff66; color: #000; }
+table.tt tr.next td.t b { color: #ff0000; }
+table.tt small { color: #888; }
+.empty-box { padding: 8px; color: #cc0000; margin: 0; }

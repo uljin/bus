@@ -32,6 +32,10 @@
           <button type="submit">검색</button>
         </form>
         <button id="nearbyBtn" class="line">내 근처 정류장 찾기 (위치 허용 필요)</button>
+        <div class="menu2">
+          <a href="#map" class="bigbtn">울진 버스 노선도</a>
+          <a href="#tt" class="bigbtn">기점별 시간표</a>
+        </div>
       </section>
 
       <section id="resultSection" hidden>
@@ -85,6 +89,35 @@
       <p id="routeTimes" class="times"></p>
       <ol id="lineList" class="line-stops"></ol>
       <p class="foot"><span id="routeUpdated"></span> · <button id="routeRefreshBtn" class="link">새로고침</button></p>
+    </div>
+
+    <!-- ④ 노선도 -->
+    <div id="mapView" hidden>
+      <button class="back link" data-back>← 뒤로</button>
+      <h3>울진 버스 노선도</h3>
+      <div class="map-tools">
+        <button id="zoomIn">크게</button> <button id="zoomOut">작게</button>
+        <span class="small-note">정류장 누르면 그 마을 가는 버스 나옴</span>
+      </div>
+      <div id="mapBox" class="map-box"></div>
+      <div id="mapPanel" class="map-panel" hidden></div>
+      <p class="hint">※ (주)울진여객 노선도(군청 게시)를 보고 다시 그린 것. 선 모양은 대략적임.<br>
+        ※ 원본: <a href="https://www.uljin.go.kr/upload_data/board_data/BBS_0000130/176605719610148.pdf">노선도 PDF</a></p>
+    </div>
+
+    <!-- ⑤ 시간표 -->
+    <div id="ttView" hidden>
+      <button class="back link" data-back>← 뒤로</button>
+      <h3>기점별 시간표 (2025.10.1 시행)</h3>
+      <form id="ttSearch" class="tt-search">
+        <input id="ttQ" type="search" placeholder="어디 가? 마을 이름 (예: 두천, 덕구)" autocomplete="off" enterkeyhint="search">
+        <button type="submit">찾기</button>
+      </form>
+      <div id="ttTabs" class="tt-tabs"></div>
+      <div id="ttBody"></div>
+      <p class="hint">※ 군청 시간표 PDF에서 컴퓨터로 뽑은 거라 틀린 데가 있을 수 있음. 꼭 원본도 확인!<br>
+        ※ 원본: <a href="https://www.uljin.go.kr/upload_data/board_data/BBS_0000130/176605719611213.pdf">시간표 PDF</a><br>
+        ※ 맨 앞 숫자는 차량(운행) 번호. 노란 줄 = 지금 시각 다음 차.</p>
     </div>
 
     <p id="msg" class="msg" hidden></p>

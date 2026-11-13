@@ -408,6 +408,136 @@ function startTimers(refreshFn) {
 }
 function stopTimers() { clearInterval(refreshTimer); clearInterval(tickTimer); }
 
+// ── 노선도 / 시간표 데이터 (군청 PDF에서 뽑은 것, public/data/*.json) ──
+
+const dataCache = {};
+const loadData = (name) => (dataCache[name] ??= fetch(`/data/${name}.json`).then(r => {
+  if (!r.ok) throw new Error(`${name} 데이터를 못 불러옴`);
+  return r.json();
+}));
+
+// "소광1리" → "소광1", "덕구" → "덕구" : 시간표엔 '리'를 빼고 적어둔 경우가 많아서
+const placeKey = (name) => name.replace(/\(.*\)/, "").replace(/리$/, "");
+const nowHHMM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+const fixTime = (t) => t.padStart(5, "0");
+
+// 어떤 마을 이름이 들어간 시간표 줄 모두
+async function rowsFor(place) {
+  const tt = await loadData("timetable");
+  const key = placeKey(place);
+  const out = [];
+  for (const t of tt.tables) {
+    for (const r of t.rows) {
+      if (r.via.includes(key) || t.dir.includes(key)) out.push({ ...r, group: t.group, dir: t.dir, note: t.note });
+    }
+  }
+  return out.sort((a, b) => fixTime(a.dep).localeCompare(fixTime(b.dep)));
+}
+
+// 시간표 줄 목록 → 표 HTML (다음 차는 노란 줄)
+function rowsTable(rows, showDir) {
+  if (!rows.length) return `<p class="empty-box">해당 버스 없음</p>`;
+  const now = nowHHMM();
+  const nextIdx = rows.findIndex(r => fixTime(r.dep) >= now);
+  return `<table class="tt"><thead><tr><th>번호</th><th>시각</th><th>경유${showDir ? " / 방면" : ""}</th></tr></thead><tbody>${
+    rows.map((r, i) => `<tr class="${i === nextIdx ? "next" : ""} ${fixTime(r.dep) < now ? "past" : ""}">
+      <td>${esc(r.no.join("/"))}</td>
+      <td class="t">${esc(r.dep)}${r.arr ? `<br><small>~${esc(r.arr)}</small>` : ""}${i === nextIdx ? "<br><b>다음차</b>" : ""}</td>
+      <td>${esc(r.via)}${showDir ? `<br><small>[${esc(r.group.replace(/\(.*\)/, ""))}] ${esc(r.dir)}</small>` : ""}</td>
+    </tr>`).join("")}</tbody></table>`;
+}
+
+// ── 노선도 화면 ───────────────────────────────────────────
+
+let mapZoom = 1;
+async function openMap() {
+  const box = $("mapBox");
+  if (!box.dataset.drawn) {
+    box.innerHTML = `<p class="empty-box">노선도 그리는 중…</p>`;
+    try {
+      box.innerHTML = drawMap(await loadData("map"));
+      box.dataset.drawn = "1";
+      box.querySelectorAll("[data-stop]").forEach(g => { g.onclick = () => showPlace(g.dataset.stop); });
+    } catch (e) { box.innerHTML = `<p class="empty-box">${esc(e.message)}</p>`; }
+  }
+  setZoom(mapZoom);
+}
+
+function drawMap(m) {
+  // 원본 좌표 그대로 쓰되, 바다·여백은 잘라냄
+  const vb = [90, 60, 1930, 3200];
+  const color = { trunk: "#1a237e", branch: "#e00000", link: "#00a0e0" };
+  const width = { trunk: 12, branch: 5, link: 5 };
+  const lines = m.edges.map(e => {
+    const d = e.pts.map((p, i) => `${i ? "L" : "M"}${p[0]},${p[1]}`).join("");
+    const tail = e.label ? `<text x="${e.pts[1][0]}" y="${e.pts[1][1] - 14}" class="m-edge-label">${esc(e.label)}</text>` : "";
+    return `<path d="${d}" stroke="${color[e.kind]}" stroke-width="${width[e.kind]}" fill="none" ${e.label ? 'stroke-dasharray="20 10"' : ""}/>${tail}`;
+  }).join("");
+  const dots = m.nodes.filter(n => n.kind !== "junction").map(n => {
+    const name = n.name.replace(/\(.*\)/, "");
+    if (n.kind === "hub") {
+      return `<g data-stop="${esc(n.name)}" class="m-stop"><circle cx="${n.x}" cy="${n.y}" r="26" fill="#0033cc" stroke="#fff" stroke-width="6"/>
+        <text x="${n.x + 34}" y="${n.y + 18}" class="m-hub">${esc(name)}</text></g>`;
+    }
+    const fill = n.kind === "sight" ? "#009933" : "#ff2020";
+    return `<g data-stop="${esc(n.name)}" class="m-stop"><circle cx="${n.x}" cy="${n.y}" r="13" fill="${fill}" stroke="#000" stroke-width="3"/>
+      <circle cx="${n.x}" cy="${n.y}" r="36" fill="transparent"/>
+      <text x="${n.x + 18}" y="${n.y - 12}" class="m-name">${esc(name)}</text></g>`;
+  }).join("");
+  return `<svg id="mapSvg" viewBox="${vb.join(" ")}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" fill="#fffde0"/>
+    ${lines}${dots}</svg>`;
+}
+
+function setZoom(z) {
+  mapZoom = Math.max(1, Math.min(4, z));
+  const svg = $("mapSvg");
+  if (svg) svg.style.width = `${mapZoom * 100}%`;
+}
+
+async function showPlace(place) {
+  const p = $("mapPanel");
+  const label = place.replace(/\(.*\)/, "");
+  p.hidden = false;
+  p.innerHTML = `<div class="panel-head"><b>${esc(label)}</b> 가는/지나는 버스
+    <button class="panel-close">닫기</button></div><p class="empty-box">찾는 중…</p>`;
+  p.querySelector(".panel-close").onclick = () => { p.hidden = true; };
+  const rows = await rowsFor(place).catch(() => []);
+  p.innerHTML = `<div class="panel-head"><b>${esc(label)}</b> 가는/지나는 버스 (시간표 기준, ${rows.length}건)
+      <button class="panel-close">닫기</button></div>
+    <p class="panel-btns"><button class="live-btn">${esc(label)} 실시간 도착정보 검색</button></p>
+    <div class="panel-body">${rowsTable(rows, true)}</div>`;
+  p.querySelector(".panel-close").onclick = () => { p.hidden = true; };
+  p.querySelector(".live-btn").onclick = () => { $("q").value = placeKey(label); go(""); setTimeout(() => search(placeKey(label)), 0); };
+  p.querySelector(".next")?.scrollIntoView({ block: "nearest" });
+}
+
+// ── 시간표 화면 ───────────────────────────────────────────
+
+let ttGroup = null;
+async function openTimetable(groupFromHash) {
+  try {
+    const tt = await loadData("timetable");
+    const groups = [...new Set(tt.tables.map(t => t.group))];
+    ttGroup = groupFromHash && groups.includes(groupFromHash) ? groupFromHash : (ttGroup || groups[0]);
+    $("ttTabs").innerHTML = groups.map(g =>
+      `<button class="tab ${g === ttGroup ? "on" : ""}" data-g="${esc(g)}">${esc(g.replace(/\(.*\)/, "").replace("기점", ""))}</button>`).join("");
+    $("ttTabs").querySelectorAll(".tab").forEach(b => { b.onclick = () => { ttGroup = b.dataset.g; openTimetable(); }; });
+    $("ttBody").innerHTML = tt.tables.filter(t => t.group === ttGroup).map(t => `
+      <div class="tt-block">
+        <div class="tt-head">[${esc(t.group)}] ${esc(t.dir)}</div>
+        ${t.note ? `<div class="tt-note">※ ${esc(t.note)}</div>` : ""}
+        ${rowsTable(t.rows.map(r => ({ ...r, group: t.group, dir: t.dir })), false)}
+      </div>`).join("");
+  } catch (e) { $("ttBody").innerHTML = `<p class="empty-box">${esc(e.message)}</p>`; }
+}
+
+async function ttSearch(q) {
+  const rows = await rowsFor(q);
+  $("ttTabs").querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
+  $("ttBody").innerHTML = `<div class="tt-block"><div class="tt-head">'${esc(q)}' 들어간 버스 ${rows.length}건 (시각순)</div>${rowsTable(rows, true)}</div>`;
+}
+
 // ── 화면 전환 (주소의 # 부분을 보고 결정) ─────────────────
 
 function route() {
@@ -416,6 +546,8 @@ function route() {
   $("homeView").hidden = !!view && view !== "";
   $("stopView").hidden = view !== "s";
   $("routeView").hidden = view !== "r";
+  $("mapView").hidden = view !== "map";
+  $("ttView").hidden = view !== "tt";
   showMsg("");
   stopTimers();
   window.scrollTo(0, 0);
@@ -424,6 +556,10 @@ function route() {
     openStop(parts[1], parts[2], parts[3] || "정류장");
   } else if (view === "r" && parts[1] && parts[2]) {
     openRoute(parts[1], parts[2], parts[3]);
+  } else if (view === "map") {
+    openMap();
+  } else if (view === "tt") {
+    openTimetable(parts[1]);
   } else {
     $("homeView").hidden = false;
     state.stop = null; state.route = null;
@@ -442,6 +578,13 @@ $("nearbyBtn").onclick = nearby;
 $("favBtn").onclick = toggleFav;
 $("refreshBtn").onclick = refreshArrivals;
 $("routeRefreshBtn").onclick = () => refreshRoute(false);
+$("zoomIn").onclick = () => setZoom(mapZoom + 0.5);
+$("zoomOut").onclick = () => setZoom(mapZoom - 0.5);
+$("ttSearch").onsubmit = (e) => {
+  e.preventDefault();
+  const q = $("ttQ").value.trim();
+  if (q) { $("ttQ").blur(); ttSearch(q); }
+};
 $("clearRecent").onclick = () => { store.set("recent", []); renderHomeLists(); };
 document.querySelectorAll("[data-back]").forEach(b => {
   b.onclick = () => (history.length > 1 ? history.back() : go(""));
