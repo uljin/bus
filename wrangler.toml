@@ -1,7 +1,7 @@
 # Cloudflare Worker 설정 파일
 # 이 파일 하나로 "어떤 코드를, 어떤 이름으로, 어떤 설정으로" 배포할지 정해.
 
-name = "uljin-bus"                 # Worker 이름 → https://uljin-bus.<계정>.workers.dev
+name = "bus"                       # Cloudflare 대시보드의 Worker 이름과 같아야 해
 main = "src/index.js"              # 서버 코드(API 프록시)
 compatibility_date = "2026-11-01"  # 이 날짜 기준의 Workers 동작 방식을 쓰겠다는 뜻
 
